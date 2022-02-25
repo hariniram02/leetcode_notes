@@ -1,0 +1,219 @@
+Intervals: DRAW A FUCKING NUMBER LINE
+  Merge:
+    sort intervals by start value
+    if previnterval end value > currentinterval start value --> merge by taking the min of the left bounds and the max of the right bounds
+    
+    soln:
+      # sort by the first value
+        intervals.sort(key = lambda i: i[0])
+        
+        # store the first interval
+        output = [intervals[0]]
+        
+        for start, end in intervals[1:]:
+            # compare the previous intervals end value
+            prevEnd = output[-1][1]
+            # merge intervals
+            if start <= prevEnd:
+                output[-1][1] = max(prevEnd, end)
+            else:
+                output.append([start, end])
+        return output
+    
+    
+  Insert:
+    sort intervals
+    compare to first interval --> if interval is in newInterval, merge intervals by taking the minimum of the left bounds and the max of the right bounds
+    repeat with every interval until it doesn't merge
+    add to new list
+    
+    ** account for edge cases: if newInterval end value < interval i start value --> append to result and return result + interval list [i:];
+       if newInterval start value > interval i end value --> append interval i to result **
+    
+    soln:
+     res = []
+        
+        # loop through interval
+        for i in range(len(intervals)):
+            # newInterval doesn't overlap
+            if newInterval[1] < intervals[i][0]:
+                res.append(newInterval)
+                return res + intervals[i:]
+            elif newInterval[0] > intervals[i][1]:
+                res.append(intervals[i])
+            else:
+                newInterval = [min(newInterval[0], intervals[i][0]), max(newInterval[1], intervals[i][1])]
+        
+        # if interval is at the end
+        res.append(newInterval)
+        
+        return res
+        
+Sliding Window: 
+    Finding substrings: slide the window until end, then decrease window 
+    # create a list to store substrings
+    substrs = []
+    
+    # get the size of the window
+    window = len(s)
+    
+    # find all substrings
+    while (window > 0):
+        start_index = 0
+        while ((start_index + window) <= len(s)):
+            substring = s[start_index:start_index + window]
+            substrs.append(substring)
+            # slide window
+            start_index += 1
+        window -= 1
+    
+    return substrs
+    
+Two Pointers: DRAW A GRAPH
+    Finding biggest jump: make sure left is smaller than right and calculate the difference
+        left = 0
+        right = 1
+        maxProfit = 0
+        while right < len(prices):
+            if prices[left] < prices[right]:
+                profit = prices[right] - prices[left]
+                maxProfit = max(profit, maxProfit)
+                right += 1
+            else:
+                left += 1
+                right += 1
+        return maxProfit
+        
+Rotations:
+  If searching for rotated substring --> double string and check if rotated substring is in the double string
+    soln:
+      all_rotations = s * 2
+      return len(s) == len(goal) and goal in all_rotations
+  
+  If rotating an array by a certain number of steps --> move each element by number of steps; once i reaches out of bounds --> i = (i + num) % len(arr)
+    mod k bc rotating a 4-length array by k = 4 should not change the array!!
+    to reverse an array:
+      left = 0
+      right = len(arr) - 1
+      while left < right:
+        nums[left], nums[right] = nums[right], nums[left]
+        left += 1
+        right -= 1
+        
+     soln:
+      k = k % len(nums)
+        l = 0
+        r = len(nums) - 1
+        # reverse array
+        while l < r:
+            nums[l], nums[r] = nums[r], nums[l]
+            l += 1
+            r -= 1
+        
+        # reverse first k elements
+        l = 0
+        r = k - 1
+        while l < r:
+            nums[l], nums[r] = nums[r], nums[l]
+            l += 1
+            r -= 1
+        
+        l = k
+        r = len(nums) - 1
+        while l < r:
+            nums[l], nums[r] = nums[r], nums[l]
+            l += 1
+            r -= 1
+
+
+Using Dictionaries: exactly one solution, need to keep track of indexes
+  Two Sum:
+    soln:
+        mappings = {}
+        index = 0
+        # i is number
+        for i in nums:
+            if i in mappings:
+                return [index, mappings[i]]
+                break
+            else:
+                mappings[target - i] = index
+            index += 1
+        return None
+        
+Binary Search: usually when problem has the word "search" in it
+  2D List:
+        rows = len(matrix)
+        cols = len(matrix[0])
+        
+        low = 0
+        high = rows * cols - 1
+        
+        while low <= high:
+            mid = (low + high) // 2
+            
+            row = mid // cols
+            col = mid % cols
+            
+            val = matrix[row][col]
+            
+            if val == target:
+                return True
+            elif val < target:
+                low = mid + 1
+            else:
+                high = mid -1 
+        return False
+        
+Setting Matrices: mark where needs to be replace using helper functions
+  Setting Matrix Zeros:
+      *** when there are repeats USE A SET ***
+        rows = set()
+        cols = set()
+        
+        def set_col (col, matrix):
+            for i in range(len(matrix)):
+                matrix[i][col] = 0
+                
+        def set_row (row, matrix):
+            for j in range(len(matrix[row])):
+                matrix[row][j] = 0
+                
+        for row in range(len(matrix)):
+            for col in range(len(matrix[row])):
+                if matrix[row][col] == 0:
+                    rows.add(row)
+                    cols.add(col)
+        
+        for i in rows:
+            set_row(i, matrix)
+        
+        for j in cols:
+            set_col(j, matrix)
+            
+Searching for word in grid: check in all 8 directions (8 if statements)
+  make an array for directions:
+    directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    for d in directions:
+      for i in range(len(word)):
+         if 0 <= row + d[0] * i < len(grid) and 0 <= col + d[1] * i < len(grid):
+            *** check grid[row + d[0] * i][[col + d[1] * i] ***
+
+Checking Palindromes: start at the middle index and check if left and right are the same
+  def is_palindrome (s):
+            if len(s) % 2 == 0:
+                left = (len(s)/2) - 1
+                right = len(s) / 2
+            else:
+                left = (len(s) // 2) - 1
+                right = (len(s) // 2) + 1
+            
+            while (left >= 0 and right < len(s)):
+                if s[left] != s[right]:
+                    return False
+                    break
+                left -= 1
+                right += 1
+            return True
+
+  
